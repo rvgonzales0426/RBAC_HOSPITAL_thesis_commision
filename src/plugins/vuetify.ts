@@ -6,42 +6,38 @@ import { createVuetify, type ThemeDefinition } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 /* ---------------------------------------------------------------------------
- * PALETTE
- *
- * Light = "Paper": warm off-white page plane, white surfaces, deep pine accent.
- * Dark  = "Graphite": near-black plane, raised surfaces, mint accent.
- *
- * The dark theme is designed, not inverted - the accent is a different step of
- * the hue (deep pine is unreadable on black), and surfaces get *lighter* as
- * they rise, the opposite of the light theme's behaviour.
- *
- * Chart series colours were validated for colour-vision-deficiency separation
- * and surface contrast. If you re-hue them, re-validate them.
+ * Clinical OPD / EMR palette.
  * ------------------------------------------------------------------------- */
 
 const light: ThemeDefinition = {
   dark: false,
   colors: {
-    background: '#F5F5F1',
+    background: '#F8FAFC',
     surface: '#FFFFFF',
-    'surface-alt': '#FAFAF8',
-    'surface-variant': '#EFEFE9',
-    'on-surface-variant': '#5E6763',
-    primary: '#0F5C4C',
-    'primary-soft': '#E4EFEB',
-    secondary: '#5E6763',
-    'text-secondary': '#5E6763',
-    scrollbar: '#D6D6CD',
-    success: '#1B7F4E',
-    warning: '#B5731F',
-    error: '#B23A32',
-    info: '#2E6FA8',
-    'on-background': '#161A18',
-    'on-surface': '#161A18',
+    'surface-alt': '#F8FAFC',
+    'surface-variant': '#E2E8F0',
+    'on-surface-variant': '#64748B',
+    primary: '#0D9488',
+    'primary-soft': '#CCFBF1',
+    secondary: '#0284C7',
+    navy: '#0F172A',
+    'text-secondary': '#64748B',
+    scrollbar: '#CBD5E1',
+    success: '#065F46',
+    warning: '#92400E',
+    error: '#991B1B',
+    info: '#075985',
+    'status-active-bg': '#D1FAE5',
+    'status-pending-bg': '#FEF3C7',
+    'status-urgent-bg': '#FEE2E2',
+    'status-lab-bg': '#E0F2FE',
+    'on-background': '#0F172A',
+    'on-surface': '#0F172A',
     'on-primary': '#FFFFFF',
+    'on-navy': '#F8FAFC',
   },
   variables: {
-    'border-color': '#E3E3DC',
+    'border-color': '#E2E8F0',
     'border-opacity': 1,
     'high-emphasis-opacity': 1,
     'medium-emphasis-opacity': 1,
@@ -50,38 +46,44 @@ const light: ThemeDefinition = {
     'selected-opacity': 0.06,
     'activated-opacity': 0.06,
     'disabled-opacity': 0.38,
-    'chart-1': '#12876F',
-    'chart-2': '#C97A14',
-    'chart-3': '#2E6FA8',
-    'chart-4': '#C24455',
-    'chart-grid': '#E7E7E0',
-    'chart-axis': '#C9C9BF',
+    'chart-1': '#0D9488',
+    'chart-2': '#0284C7',
+    'chart-3': '#1E3A8A',
+    'chart-4': '#DC2626',
+    'chart-grid': '#E2E8F0',
+    'chart-axis': '#94A3B8',
   },
 }
 
 const dark: ThemeDefinition = {
   dark: true,
   colors: {
-    background: '#0D0F0E',
-    surface: '#161917',
-    'surface-alt': '#1C201E',
-    'surface-variant': '#232825',
-    'on-surface-variant': '#949D98',
-    primary: '#4CC49E',
-    'primary-soft': '#16302A',
-    secondary: '#949D98',
-    'text-secondary': '#949D98',
-    scrollbar: '#2E3431',
-    success: '#3FB574',
-    warning: '#D9A03C',
-    error: '#E0685E',
-    info: '#5C9BD6',
-    'on-background': '#E8EBE8',
-    'on-surface': '#E8EBE8',
-    'on-primary': '#08130F',
+    background: '#020617',
+    surface: '#0F172A',
+    'surface-alt': '#111C35',
+    'surface-variant': '#1E293B',
+    'on-surface-variant': '#94A3B8',
+    primary: '#2DD4BF',
+    'primary-soft': '#134E4A',
+    secondary: '#38BDF8',
+    navy: '#0F172A',
+    'text-secondary': '#94A3B8',
+    scrollbar: '#334155',
+    success: '#34D399',
+    warning: '#FBBF24',
+    error: '#F87171',
+    info: '#7DD3FC',
+    'status-active-bg': '#064E3B',
+    'status-pending-bg': '#78350F',
+    'status-urgent-bg': '#7F1D1D',
+    'status-lab-bg': '#0C4A6E',
+    'on-background': '#E2E8F0',
+    'on-surface': '#E2E8F0',
+    'on-primary': '#082F49',
+    'on-navy': '#E2E8F0',
   },
   variables: {
-    'border-color': '#262B28',
+    'border-color': '#334155',
     'border-opacity': 1,
     'high-emphasis-opacity': 1,
     'medium-emphasis-opacity': 1,
@@ -90,12 +92,12 @@ const dark: ThemeDefinition = {
     'selected-opacity': 0.09,
     'activated-opacity': 0.09,
     'disabled-opacity': 0.38,
-    'chart-1': '#199E7E',
-    'chart-2': '#B8811F',
-    'chart-3': '#3D82C9',
-    'chart-4': '#CB5462',
-    'chart-grid': '#222724',
-    'chart-axis': '#333A36',
+    'chart-1': '#2DD4BF',
+    'chart-2': '#38BDF8',
+    'chart-3': '#818CF8',
+    'chart-4': '#F87171',
+    'chart-grid': '#1E293B',
+    'chart-axis': '#475569',
   },
 }
 

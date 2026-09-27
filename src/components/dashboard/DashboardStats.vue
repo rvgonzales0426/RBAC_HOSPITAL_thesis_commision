@@ -23,6 +23,8 @@ const placeholders = [1, 2, 3, 4]
         :value="stat.value"
         :delta="stat.delta"
         :delta-label="stat.deltaLabel"
+        :icon="stat.icon"
+        :icon-color="stat.iconColor"
         :up-is-good="stat.upIsGood"
         class="stats__cell"
       />

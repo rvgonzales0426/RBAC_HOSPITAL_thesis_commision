@@ -24,7 +24,10 @@ defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
     <li v-for="entry in entries" :key="entry.id" class="activity__row">
       <div class="activity__dot" aria-hidden="true" />
       <div class="activity__body">
-        <div class="activity__title">{{ entry.title }}</div>
+        <div class="activity__title">
+          {{ entry.title }}
+          <span class="status-pill" :class="`status-pill--${entry.tone}`">{{ entry.status }}</span>
+        </div>
         <div class="activity__detail">{{ entry.detail }}</div>
       </div>
       <time class="activity__time">{{ entry.at }}</time>
@@ -68,6 +71,10 @@ defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
 .activity__title {
   font-size: 0.875rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .activity__detail {
@@ -92,6 +99,33 @@ defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
 .activity__skeleton--dim {
   opacity: 0.6;
   margin-top: 8px;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.status-pill--active {
+  background-color: rgb(var(--v-theme-status-active-bg));
+  color: rgb(var(--v-theme-success));
+}
+
+.status-pill--pending {
+  background-color: rgb(var(--v-theme-status-pending-bg));
+  color: rgb(var(--v-theme-warning));
+}
+
+.status-pill--urgent {
+  background-color: rgb(var(--v-theme-status-urgent-bg));
+  color: rgb(var(--v-theme-error));
+}
+
+.status-pill--lab {
+  background-color: rgb(var(--v-theme-status-lab-bg));
+  color: rgb(var(--v-theme-info));
 }
 
 @keyframes activity-pulse {
