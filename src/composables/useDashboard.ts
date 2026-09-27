@@ -1,5 +1,4 @@
 import { onMounted, ref } from 'vue'
-import type { ChartPoint } from './useAreaChart'
 
 export interface DashboardStat {
   key: string
@@ -7,14 +6,27 @@ export interface DashboardStat {
   value: string
   delta?: string
   deltaLabel?: string
+  icon?: string
+  iconColor?: string
   upIsGood?: boolean
 }
+
+export type ClinicalTone = 'active' | 'pending' | 'urgent' | 'lab'
 
 export interface ActivityEntry {
   id: string
   title: string
   detail: string
   at: string
+  status: string
+  tone: ClinicalTone
+}
+
+export interface AlertEntry {
+  id: string
+  title: string
+  detail: string
+  tone: ClinicalTone
 }
 
 /* ---------------------------------------------------------------------------
@@ -28,50 +40,111 @@ export interface ActivityEntry {
  * ------------------------------------------------------------------------- */
 
 const PLACEHOLDER_STATS: DashboardStat[] = [
-  { key: 'records', label: 'Total records', value: '1,284', delta: '+4.2%', deltaLabel: 'vs last month' },
-  { key: 'active', label: 'Active this week', value: '312', delta: '+11.8%', deltaLabel: 'vs last week' },
-  { key: 'pending', label: 'Pending review', value: '18', delta: '-6.0%', deltaLabel: 'vs last week', upIsGood: false },
-  { key: 'members', label: 'Team members', value: '7' },
-]
-
-const PLACEHOLDER_SERIES: ChartPoint[] = [
-  { label: 'Jan', value: 620 },
-  { label: 'Feb', value: 684 },
-  { label: 'Mar', value: 651 },
-  { label: 'Apr', value: 742 },
-  { label: 'May', value: 806 },
-  { label: 'Jun', value: 779 },
-  { label: 'Jul', value: 864 },
-  { label: 'Aug', value: 921 },
-  { label: 'Sep', value: 903 },
-  { label: 'Oct', value: 988 },
-  { label: 'Nov', value: 1046 },
-  { label: 'Dec', value: 1128 },
+  {
+    key: 'patients',
+    label: 'Total Registered Patients',
+    value: '1,284',
+    delta: '+3.6%',
+    deltaLabel: 'vs yesterday',
+    icon: 'mdi-account-multiple-outline',
+    iconColor: 'info',
+  },
+  {
+    key: 'queue',
+    label: 'Waiting Queue Count',
+    value: '32',
+    delta: '-2',
+    deltaLabel: 'from last hour',
+    icon: 'mdi-timer-sand',
+    iconColor: 'warning',
+    upIsGood: false,
+  },
+  {
+    key: 'lab',
+    label: 'Pending Lab Requests',
+    value: '14',
+    delta: '+1',
+    deltaLabel: 'in 30 min',
+    icon: 'mdi-flask-outline',
+    iconColor: 'secondary',
+    upIsGood: false,
+  },
+  {
+    key: 'doctors',
+    label: 'Active Doctors',
+    value: '7',
+    delta: '+1',
+    deltaLabel: 'on duty',
+    icon: 'mdi-stethoscope',
+    iconColor: 'success',
+  },
 ]
 
 const PLACEHOLDER_ACTIVITY: ActivityEntry[] = [
-  { id: '1', title: 'Record #2041 approved', detail: 'by Alex Reyes', at: '20 minutes ago' },
-  { id: '2', title: 'New member joined', detail: 'M. Santos accepted an invite', at: '2 hours ago' },
-  { id: '3', title: 'Monthly report generated', detail: 'November summary', at: 'Yesterday' },
+  {
+    id: '1',
+    title: 'Patient #OPD-2401 checked in',
+    detail: 'Maria Santos — General Consultation',
+    at: '2 min ago',
+    status: 'In Queue',
+    tone: 'pending',
+  },
+  {
+    id: '2',
+    title: 'Patient #OPD-2402 moved to triage',
+    detail: 'Juan Dela Cruz — Vital signs complete',
+    at: '8 min ago',
+    status: 'Processing',
+    tone: 'lab',
+  },
+  {
+    id: '3',
+    title: 'Patient #OPD-2398 consultation completed',
+    detail: 'Seen by Dr. Alonzo',
+    at: '14 min ago',
+    status: 'Completed',
+    tone: 'active',
+  },
+]
+
+const PLACEHOLDER_ALERTS: AlertEntry[] = [
+  {
+    id: '1',
+    title: 'Urgent follow-up required',
+    detail: 'Patient #OPD-2379 flagged for elevated BP review.',
+    tone: 'urgent',
+  },
+  {
+    id: '2',
+    title: 'Lab turnaround delay',
+    detail: '3 CBC requests are pending longer than 45 minutes.',
+    tone: 'lab',
+  },
+  {
+    id: '3',
+    title: 'Queue stabilized',
+    detail: 'Average wait time is currently 12 minutes.',
+    tone: 'active',
+  },
 ]
 
 export function useDashboard() {
   const loading = ref(true)
   const stats = ref<DashboardStat[]>([])
-  const series = ref<ChartPoint[]>([])
   const activity = ref<ActivityEntry[]>([])
+  const alerts = ref<AlertEntry[]>([])
 
   async function load() {
     loading.value = true
     // Replace this timeout with real store calls.
-    await new Promise((resolve) => setTimeout(resolve, 550))
+    await new Promise((resolve) => setTimeout(resolve, 400))
     stats.value = PLACEHOLDER_STATS
-    series.value = PLACEHOLDER_SERIES
     activity.value = PLACEHOLDER_ACTIVITY
+    alerts.value = PLACEHOLDER_ALERTS
     loading.value = false
   }
 
   onMounted(load)
 
-  return { loading, stats, series, activity, reload: load }
+  return { loading, stats, activity, alerts, reload: load }
 }

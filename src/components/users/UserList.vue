@@ -140,9 +140,8 @@ const formatDate = (value: string) =>
       </template>
 
       <template #item.is_active="{ item }">
-        <span class="status" :class="item.is_active ? 'status--on' : 'status--off'">
-          <span class="status__dot" aria-hidden="true" />
-          {{ item.is_active ? 'Active' : 'Deactivated' }}
+        <span class="status-pill" :class="item.is_active ? 'status-pill--active' : 'status-pill--pending'">
+          {{ item.is_active ? 'Active' : 'Inactive' }}
         </span>
       </template>
 
@@ -212,29 +211,21 @@ const formatDate = (value: string) =>
   color: rgb(var(--v-theme-text-secondary));
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.8125rem;
-}
-
-.status__dot {
-  width: 6px;
-  height: 6px;
+.status-pill {
   border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-.status--on .status__dot {
-  background-color: rgb(var(--v-theme-success));
+.status-pill--active {
+  background-color: rgb(var(--v-theme-status-active-bg));
+  color: rgb(var(--v-theme-success));
 }
 
-.status--off {
-  color: rgb(var(--v-theme-text-secondary));
-}
-
-.status--off .status__dot {
-  background-color: rgb(var(--v-chart-axis));
+.status-pill--pending {
+  background-color: rgb(var(--v-theme-status-pending-bg));
+  color: rgb(var(--v-theme-warning));
 }
 
 .table-footnote {

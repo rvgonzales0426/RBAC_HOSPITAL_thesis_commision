@@ -9,6 +9,8 @@ const props = defineProps<{
   delta?: string
   /** Names the comparison period, e.g. "vs last month". */
   deltaLabel?: string
+  icon?: string
+  iconColor?: string
   /** false when a rise is bad (error rate, cost). Defaults to true. */
   upIsGood?: boolean
   loading?: boolean
@@ -30,7 +32,10 @@ const deltaColor = computed(() => {
 
 <template>
   <div class="stat">
-    <div class="stat__label">{{ label }}</div>
+    <div class="stat__head">
+      <div class="stat__label">{{ label }}</div>
+      <v-icon v-if="icon" :icon="icon" :color="iconColor || 'secondary'" size="18" />
+    </div>
 
     <template v-if="loading">
       <v-skeleton-loader type="text" class="stat__skeleton" />
@@ -61,6 +66,13 @@ const deltaColor = computed(() => {
 .stat__label {
   font-size: 0.8125rem;
   color: rgb(var(--v-theme-text-secondary));
+}
+
+.stat__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .stat__value {

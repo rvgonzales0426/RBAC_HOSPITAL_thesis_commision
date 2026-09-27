@@ -14,27 +14,23 @@ export interface NavSection {
 
 export const navigation: NavSection[] = [
   {
-    items: [{ title: 'Dashboard', icon: 'mdi-view-dashboard-outline', to: '/' }],
-  },
-  {
-    title: 'Administration',
     items: [
+      { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', to: '/' },
       {
-        title: 'Users',
-        icon: 'mdi-account-multiple-outline',
+        title: 'Registration',
+        icon: 'mdi-account-plus-outline',
         to: '/admin/users',
         permissions: [PERMISSIONS.UsersRead],
       },
       {
-        title: 'Roles',
-        icon: 'mdi-shield-key-outline',
+        title: 'OPD Queue',
+        icon: 'mdi-clipboard-text-clock-outline',
         to: '/admin/roles',
         permissions: [PERMISSIONS.RolesRead],
       },
+      { title: 'Consultation', icon: 'mdi-stethoscope', to: '/settings' },
+      { title: 'Laboratory', icon: 'mdi-flask-outline', to: '/settings#laboratory' },
+      { title: 'EMR Viewer', icon: 'mdi-file-document-multiple-outline', to: '/settings#emr' },
     ],
-  },
-  {
-    title: 'Account',
-    items: [{ title: 'Settings', icon: 'mdi-cog-outline', to: '/settings' }],
   },
 ]

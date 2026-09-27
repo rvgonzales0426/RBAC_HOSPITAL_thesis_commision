@@ -76,8 +76,8 @@ h1, h2, h3, h4, h5, h6,
 .v-menu > .v-overlay__content,
 .v-snackbar__wrapper {
   box-shadow:
-    0 1px 2px rgba(9, 12, 11, 0.06),
-    0 8px 24px -6px rgba(9, 12, 11, 0.14) !important;
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 6px 18px -8px rgba(15, 23, 42, 0.18) !important;
 }
 
 .v-theme--dark .v-overlay__content > .v-card,
@@ -128,6 +128,7 @@ h1, h2, h3, h4, h5, h6,
   background-color: rgb(var(--v-theme-surface));
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .link-inline {
@@ -179,4 +180,26 @@ h1, h2, h3, h4, h5, h6,
 .v-data-table .v-data-table__td,
 .v-data-table .v-data-table__th {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+  border-right: 1px solid rgba(var(--v-border-color), 0.6) !important;
+}
+
+.v-data-table .v-data-table__th:last-child,
+.v-data-table .v-data-table__td:last-child {
+  border-right: none !important;
+}
+
+.v-data-table .v-data-table__tr:hover > td {
+  background-color: rgb(var(--v-theme-surface-alt)) !important;
+}
+
+.v-field.v-field--focused {
+  box-shadow: 0 0 0 2px rgba(var(--v-theme-secondary), 0.2) !important;
+}
+
+.v-field.v-field--focused .v-field__outline {
+  color: rgb(var(--v-theme-secondary)) !important;
+}
+
+.v-field:not(.v-field--focused) .v-field__outline {
+  color: #d1d5db !important;
 }

@@ -27,7 +27,7 @@ const sections = computed(() =>
     :temporary="temporary"
     :width="248"
     :rail-width="68"
-    color="surface-alt"
+    color="navy"
     class="sidebar"
     elevation="0"
   >
@@ -63,7 +63,8 @@ const sections = computed(() =>
 <style scoped>
 /* Border, not elevation — the sidebar sits in the page, it does not float. */
 .sidebar {
-  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+  border-right: 1px solid rgba(var(--v-theme-secondary), 0.26) !important;
+  color: rgb(var(--v-theme-on-navy));
 }
 
 .sidebar__brand {
@@ -83,7 +84,7 @@ const sections = computed(() =>
   border-radius: 6px;
   display: grid;
   place-items: center;
-  background-color: rgb(var(--v-theme-primary));
+  background-color: rgb(var(--v-theme-secondary));
   color: rgb(var(--v-theme-on-primary));
   font-weight: 600;
   font-size: 0.8125rem;
@@ -93,6 +94,7 @@ const sections = computed(() =>
   font-weight: 600;
   letter-spacing: -0.015em;
   white-space: nowrap;
+  color: rgb(var(--v-theme-on-navy));
 }
 
 .sidebar__nav {
@@ -105,12 +107,13 @@ const sections = computed(() =>
   padding: 14px 18px 6px;
   font-size: 0.75rem;
   font-weight: 500;
-  color: rgb(var(--v-theme-text-secondary));
+  color: rgba(var(--v-theme-on-navy), 0.65);
 }
 
 .sidebar__item {
   margin-bottom: 2px;
   font-size: 0.875rem;
+  color: rgba(var(--v-theme-on-navy), 0.8);
 }
 
 .sidebar__item :deep(.v-list-item-title) {
@@ -119,11 +122,15 @@ const sections = computed(() =>
 }
 
 .sidebar__item.v-list-item--active {
-  background-color: rgb(var(--v-theme-primary-soft));
-  color: rgb(var(--v-theme-primary));
+  background-color: rgba(var(--v-theme-secondary), 0.2);
+  color: rgb(var(--v-theme-secondary));
 }
 
 .sidebar__item.v-list-item--active :deep(.v-icon) {
-  color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-secondary));
+}
+
+.sidebar__item :deep(.v-icon) {
+  color: rgba(var(--v-theme-on-navy), 0.75);
 }
 </style>
