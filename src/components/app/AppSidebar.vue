@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { navigation } from '@/config/navigation'
+import { APP_NAME } from '@/config/app'
 import { useAuthStore } from '@/stores/auth'
 
 defineProps<{ rail: boolean; temporary: boolean }>()
 const drawer = defineModel<boolean>('drawer', { required: true })
 
 const auth = useAuthStore()
-const appName = import.meta.env.VITE_APP_NAME || 'Thesis Template'
+const appName = APP_NAME
 
 /** Cosmetic filtering only — the route guard and RLS are the real gates. */
 const sections = computed(() =>

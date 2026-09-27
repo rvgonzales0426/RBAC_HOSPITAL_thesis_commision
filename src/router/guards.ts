@@ -1,7 +1,6 @@
 import type { NavigationGuardWithThis } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-
-const APP_NAME = import.meta.env.VITE_APP_NAME || 'Thesis Template'
+import { APP_NAME } from '@/config/app'
 
 /**
  * One guard covering both questions: are you signed in, and are you allowed
@@ -17,7 +16,10 @@ export const authGuard: NavigationGuardWithThis<undefined> = async (to) => {
   }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: 'login', query: to.fullPath === '/' ? {} : { redirect: to.fullPath } }
+    // The bare address is a first visit: show the landing page. A deep link
+    // goes straight to sign-in and comes back afterwards.
+    if (to.fullPath === '/') return { name: 'landing' }
+    return { name: 'login', query: { redirect: to.fullPath } }
   }
 
   if (to.meta.guestOnly && auth.isAuthenticated) {

@@ -1,43 +1,61 @@
 <script setup lang="ts">
 import PageHeader from '@/components/common/PageHeader.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
+import EmptyState from '@/components/common/EmptyState.vue'
+import StatusPill from '@/components/common/StatusPill.vue'
 import DashboardStats from '@/components/dashboard/DashboardStats.vue'
 import DashboardActivity from '@/components/dashboard/DashboardActivity.vue'
 import { useDashboard } from '@/composables/useDashboard'
 import { useAuthStore } from '@/stores/auth'
 
-const { loading, stats, activity, alerts } = useDashboard()
+const { allowed, loading, stats, activity, alerts } = useDashboard()
 const auth = useAuthStore()
 </script>
 
 <template>
   <PageHeader
     :title="`Good to see you, ${auth.displayName.split(' ')[0]}`"
-    description="Live outpatient metrics, queue flow, and operational alerts for the current shift."
+    :description="
+      allowed
+        ? 'Live outpatient metrics, patient flow and alerts for the current clinic day.'
+        : undefined
+    "
   />
 
-  <DashboardStats :stats="stats" :loading="loading" class="mb-6" />
+  <!-- Anyone with a workspace is sent to it by the router; reaching this
+       means the account has no role with any OPD access yet. -->
+  <section v-if="!allowed" class="surface-panel">
+    <EmptyState
+      icon="mdi-account-clock-outline"
+      title="Your account is waiting for a role"
+      description="An administrator needs to assign you a role — OPD Staff, Physician, or Laboratory Technician — before you can use the system. Sign out and back in once they have."
+    />
+  </section>
 
-  <div class="dashboard-grid">
-    <SectionCard title="Patient queue activity" description="Recent OPD movements and consultation flow." flush>
-      <DashboardActivity :entries="activity" :loading="loading" />
-    </SectionCard>
+  <template v-else>
+    <DashboardStats :stats="stats" :loading="loading" class="mb-6" />
 
-    <SectionCard title="Notifications & alerts" description="Monitor urgent and processing updates in real time.">
-      <div v-if="loading" class="alerts">
-        <div v-for="n in 3" :key="n" class="alerts__skeleton" />
-      </div>
-      <ul v-else class="alerts">
-        <li v-for="alert in alerts" :key="alert.id" class="alerts__item">
-          <span class="status-pill" :class="`status-pill--${alert.tone}`">{{ alert.tone }}</span>
-          <div>
-            <p class="alerts__title">{{ alert.title }}</p>
-            <p class="alerts__detail">{{ alert.detail }}</p>
-          </div>
-        </li>
-      </ul>
-    </SectionCard>
-  </div>
+    <div class="dashboard-grid">
+      <SectionCard title="Live activity" description="Every patient movement, newest first." flush>
+        <DashboardActivity :entries="activity" :loading="loading" />
+      </SectionCard>
+
+      <SectionCard title="Alerts" description="Computed from the live numbers — they clear themselves.">
+        <div v-if="loading" class="alerts">
+          <div v-for="n in 3" :key="n" class="alerts__skeleton" />
+        </div>
+        <ul v-else class="alerts">
+          <li v-for="alert in alerts" :key="alert.id" class="alerts__item">
+            <StatusPill :tone="alert.tone" :label="alert.label" />
+            <div>
+              <p class="alerts__title">{{ alert.title }}</p>
+              <p class="alerts__detail">{{ alert.detail }}</p>
+            </div>
+          </li>
+        </ul>
+      </SectionCard>
+    </div>
+  </template>
 </template>
 
 <style scoped>
@@ -90,33 +108,5 @@ const auth = useAuthStore()
   height: 48px;
   border-radius: 8px;
   background-color: rgb(var(--v-theme-surface-alt));
-}
-
-.status-pill {
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.status-pill--active {
-  background-color: rgb(var(--v-theme-status-active-bg));
-  color: rgb(var(--v-theme-success));
-}
-
-.status-pill--pending {
-  background-color: rgb(var(--v-theme-status-pending-bg));
-  color: rgb(var(--v-theme-warning));
-}
-
-.status-pill--urgent {
-  background-color: rgb(var(--v-theme-status-urgent-bg));
-  color: rgb(var(--v-theme-error));
-}
-
-.status-pill--lab {
-  background-color: rgb(var(--v-theme-status-lab-bg));
-  color: rgb(var(--v-theme-info));
 }
 </style>

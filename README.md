@@ -25,8 +25,12 @@ npm run dev
 **1. Create a Supabase project** and copy the URL and anon key from
 *Project settings → API* into `.env`.
 
-**2. Run the migrations.** Paste `supabase/migrations/0001_profiles.sql` then
-`0002_rls.sql` into the SQL editor, or `supabase db push` if you use the CLI.
+**2. Run the migrations.** Paste each file in `supabase/migrations/` into the
+SQL editor in order — `0001_profiles.sql` through `0006_opd_extensions.sql` —
+or `supabase db push` if you use the CLI. 0003–0006 add the OPD/EMR schema: the
+Physician, OPD Staff and Laboratory Technician roles, patients, the visit
+queue, consultations and prescriptions, lab orders and results (with
+amendments), reassignment, the end-of-day sweep, and the activity feed.
 
 **3. Sign up through the app**, then make yourself an admin:
 

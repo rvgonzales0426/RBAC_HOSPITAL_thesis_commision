@@ -41,8 +41,24 @@ export function toMessage(error: unknown, fallback = 'Something went wrong. Try 
   }
   if (map[message]) return map[message]
 
+  // Unique indexes the OPD schema relies on, named so the message can be kind.
+  const constraints: Record<string, string> = {
+    visits_one_open_per_patient: 'This patient is already in the queue.',
+    patients_philhealth_idx: 'A patient with that PhilHealth number is already registered.',
+    lab_order_items_order_id_test_type_id_key: 'That test is already on this order.',
+  }
+  for (const [name, text] of Object.entries(constraints)) {
+    if (message.includes(name)) return text
+  }
+
   // Postgres RLS rejections are accurate but unreadable.
-  if (message.includes('row-level security')) {
+  // .single() on an update RLS filtered down to zero rows.
+  if (message.includes('Cannot coerce the result to a single JSON object')) {
+    return 'That record could not be changed. It may be locked, or no longer yours to edit.'
+  }
+
+  // Column-grant rejections read "permission denied for table x".
+  if (message.includes('row-level security') || message.startsWith('permission denied for')) {
     return 'You do not have permission to do that.'
   }
   return message

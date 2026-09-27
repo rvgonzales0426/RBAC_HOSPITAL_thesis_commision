@@ -21,9 +21,31 @@ export const PERMISSIONS = {
   UsersInvite: 'users.invite',
   RolesRead: 'roles.read',
   RolesWrite: 'roles.write',
+
+  // OPD / EMR — seeded in 0003_opd_schema.sql
+  PatientsRead: 'patients.read',
+  PatientsWrite: 'patients.write',
+  QueueRead: 'queue.read',
+  QueueManage: 'queue.manage',
+  QueueServe: 'queue.serve',
+  ConsultationsRead: 'consultations.read',
+  ConsultationsWrite: 'consultations.write',
+  LabRead: 'lab.read',
+  LabOrder: 'lab.order',
+  LabProcess: 'lab.process',
+  LabCatalog: 'lab.catalog',
+  DashboardRead: 'dashboard.read',
 } as const
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]
 
 /** Order categories appear in the role editor. Unlisted ones sort last, A-Z. */
-export const CATEGORY_ORDER = ['Users', 'Access control'] as const
+export const CATEGORY_ORDER = [
+  'Patients',
+  'Queue',
+  'Consultations',
+  'Laboratory',
+  'Monitoring',
+  'Users',
+  'Access control',
+] as const

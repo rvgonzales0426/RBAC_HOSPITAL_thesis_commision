@@ -1,4 +1,21 @@
-import { onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useOperationsStore } from '@/stores/operations'
+import { useStaffStore } from '@/stores/staff'
+import { useClock } from './useClock'
+import { usePermissions } from './usePermissions'
+import { useToast } from './useToast'
+import { PERMISSIONS } from '@/config/permissions'
+import {
+  formatDuration,
+  formatRelative,
+  minutesSince,
+  patientName,
+  physicianName,
+  ticketLabel,
+  type Tone,
+} from '@/config/opd'
+import type { VisitEvent } from '@/types'
 
 export interface DashboardStat {
   key: string
@@ -11,140 +28,208 @@ export interface DashboardStat {
   upIsGood?: boolean
 }
 
-export type ClinicalTone = 'active' | 'pending' | 'urgent' | 'lab'
-
 export interface ActivityEntry {
   id: string
   title: string
   detail: string
   at: string
   status: string
-  tone: ClinicalTone
+  tone: Tone
 }
 
 export interface AlertEntry {
   id: string
   title: string
   detail: string
-  tone: ClinicalTone
+  tone: Tone
+  label: string
 }
 
-/* ---------------------------------------------------------------------------
- * PLACEHOLDER DATA — REPLACE WITH PROJECT-SPECIFIC DATA
- *
- * Everything below is fake and exists only so the dashboard has something to
- * lay out. For a real project:
- *   1. Add a store, e.g. stores/inventory.ts, with the Supabase queries.
- *   2. Call its actions from here and delete the constants below.
- *   3. Keep the `loading` flag — the skeletons depend on it.
- * ------------------------------------------------------------------------- */
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`
 
-const PLACEHOLDER_STATS: DashboardStat[] = [
-  {
-    key: 'patients',
-    label: 'Total Registered Patients',
-    value: '1,284',
-    delta: '+3.6%',
-    deltaLabel: 'vs yesterday',
-    icon: 'mdi-account-multiple-outline',
-    iconColor: 'info',
-  },
-  {
-    key: 'queue',
-    label: 'Waiting Queue Count',
-    value: '32',
-    delta: '-2',
-    deltaLabel: 'from last hour',
-    icon: 'mdi-timer-sand',
-    iconColor: 'warning',
-    upIsGood: false,
-  },
-  {
-    key: 'lab',
-    label: 'Pending Lab Requests',
-    value: '14',
-    delta: '+1',
-    deltaLabel: 'in 30 min',
-    icon: 'mdi-flask-outline',
-    iconColor: 'secondary',
-    upIsGood: false,
-  },
-  {
-    key: 'doctors',
-    label: 'Active Doctors',
-    value: '7',
-    delta: '+1',
-    deltaLabel: 'on duty',
-    icon: 'mdi-stethoscope',
-    iconColor: 'success',
-  },
-]
-
-const PLACEHOLDER_ACTIVITY: ActivityEntry[] = [
-  {
-    id: '1',
-    title: 'Patient #OPD-2401 checked in',
-    detail: 'Maria Santos — General Consultation',
-    at: '2 min ago',
-    status: 'In Queue',
-    tone: 'pending',
-  },
-  {
-    id: '2',
-    title: 'Patient #OPD-2402 moved to triage',
-    detail: 'Juan Dela Cruz — Vital signs complete',
-    at: '8 min ago',
-    status: 'Processing',
-    tone: 'lab',
-  },
-  {
-    id: '3',
-    title: 'Patient #OPD-2398 consultation completed',
-    detail: 'Seen by Dr. Alonzo',
-    at: '14 min ago',
-    status: 'Completed',
-    tone: 'active',
-  },
-]
-
-const PLACEHOLDER_ALERTS: AlertEntry[] = [
-  {
-    id: '1',
-    title: 'Urgent follow-up required',
-    detail: 'Patient #OPD-2379 flagged for elevated BP review.',
-    tone: 'urgent',
-  },
-  {
-    id: '2',
-    title: 'Lab turnaround delay',
-    detail: '3 CBC requests are pending longer than 45 minutes.',
-    tone: 'lab',
-  },
-  {
-    id: '3',
-    title: 'Queue stabilized',
-    detail: 'Average wait time is currently 12 minutes.',
-    tone: 'active',
-  },
-]
-
+/**
+ * The operations dashboard: headline numbers, the live activity feed, and
+ * alerts derived from the same numbers — nothing here is sample data.
+ */
 export function useDashboard() {
-  const loading = ref(true)
-  const stats = ref<DashboardStat[]>([])
-  const activity = ref<ActivityEntry[]>([])
-  const alerts = ref<AlertEntry[]>([])
+  const store = useOperationsStore()
+  const staff = useStaffStore()
+  const toast = useToast()
+  const { can } = usePermissions()
+  const { now } = useClock()
+  const { stats: raw, events, loaded } = storeToRefs(store)
 
-  async function load() {
-    loading.value = true
-    // Replace this timeout with real store calls.
-    await new Promise((resolve) => setTimeout(resolve, 400))
-    stats.value = PLACEHOLDER_STATS
-    activity.value = PLACEHOLDER_ACTIVITY
-    alerts.value = PLACEHOLDER_ALERTS
-    loading.value = false
+  const allowed = computed(() => can(PERMISSIONS.DashboardRead))
+  const loading = computed(() => allowed.value && !loaded.value)
+
+  const stats = computed<DashboardStat[]>(() => {
+    const s = raw.value
+    if (!s) return []
+    return [
+      {
+        key: 'patients',
+        label: 'Total registered patients',
+        value: s.total_patients.toLocaleString(),
+        delta: String(s.registered_today),
+        deltaLabel: 'visits today',
+        icon: 'mdi-account-multiple-outline',
+        iconColor: 'info',
+      },
+      {
+        key: 'waiting',
+        label: 'Waiting now',
+        value: String(s.waiting),
+        delta: s.avg_wait_minutes_today !== null ? `${s.avg_wait_minutes_today} min` : undefined,
+        deltaLabel: 'average wait today',
+        icon: 'mdi-timer-sand',
+        iconColor: 'warning',
+      },
+      {
+        key: 'lab',
+        label: 'Pending lab requests',
+        value: String(s.pending_lab_requests),
+        delta: s.stat_lab_pending ? String(s.stat_lab_pending) : undefined,
+        deltaLabel: 'STAT',
+        icon: 'mdi-flask-outline',
+        iconColor: 'secondary',
+      },
+      {
+        key: 'doctors',
+        label: 'Physicians on duty',
+        value: String(s.active_physicians),
+        delta: String(s.available_physicians),
+        deltaLabel: 'free to call',
+        icon: 'mdi-stethoscope',
+        iconColor: 'success',
+      },
+    ]
+  })
+
+  function describe(event: VisitEvent): Omit<ActivityEntry, 'id' | 'at'> {
+    const who = event.patient ? patientName(event.patient) : 'A patient'
+    const ticket = event.visit ? ticketLabel(event.visit.queue_number) : ''
+    const details = event.details as Record<string, string | undefined>
+    const doctor = physicianName(staff.get(details.physician_id ?? event.actor_id))
+    const title = `${ticket} ${who}`.trim()
+
+    switch (event.event) {
+      case 'registered':
+        return { title, detail: 'Joined the waiting line', status: 'Queued', tone: 'pending' }
+      case 'called':
+        return { title, detail: `Called in by ${doctor}`, status: 'In consultation', tone: 'active' }
+      case 'resumed':
+        return { title, detail: `Back with ${doctor} to review results`, status: 'In consultation', tone: 'active' }
+      case 'sent_to_lab':
+        return { title, detail: 'Sent to the laboratory', status: 'At laboratory', tone: 'lab' }
+      case 'lab_completed':
+        return { title, detail: `${details.order_no ?? 'Lab order'} released`, status: 'Results released', tone: 'lab' }
+      case 'lab_amended':
+        return {
+          title,
+          detail: `${details.parameter ?? 'A result'} amended: ${details.old_value} → ${details.new_value}`,
+          status: 'Amended',
+          tone: 'urgent',
+        }
+      case 'results_ready':
+        return { title, detail: 'Results ready for their physician', status: 'Results ready', tone: 'urgent' }
+      case 'returned_to_queue':
+        return { title, detail: 'Returned to the waiting line', status: 'Waiting', tone: 'pending' }
+      case 'reassigned':
+        return { title, detail: `Reassigned to ${doctor}`, status: 'Reassigned', tone: 'pending' }
+      case 'completed':
+        return { title, detail: `Consultation completed by ${doctor}`, status: 'Completed', tone: 'active' }
+      case 'no_show':
+        return { title, detail: details.cancel_reason ?? 'Did not answer when called', status: 'No-show', tone: 'neutral' }
+      case 'cancelled':
+        return { title, detail: details.cancel_reason ?? 'Visit cancelled', status: 'Cancelled', tone: 'neutral' }
+      default:
+        return { title, detail: event.event, status: event.event, tone: 'neutral' }
+    }
   }
 
-  onMounted(load)
+  const activity = computed<ActivityEntry[]>(() =>
+    events.value.map((event) => ({
+      id: String(event.id),
+      at: formatRelative(event.created_at, now.value),
+      ...describe(event),
+    })),
+  )
 
-  return { loading, stats, activity, alerts, reload: load }
+  const alerts = computed<AlertEntry[]>(() => {
+    const s = raw.value
+    if (!s) return []
+    const list: AlertEntry[] = []
+
+    if (s.waiting > 0 && s.available_physicians === 0) {
+      list.push({
+        id: 'no-physician',
+        title: 'Patients waiting, no physician free',
+        detail: `${plural(s.waiting, 'patient is', 'patients are')} in line and every physician on duty is busy, on break, or off duty.`,
+        tone: 'urgent',
+        label: 'Urgent',
+      })
+    }
+    if (s.stale_waiting > 0) {
+      list.push({
+        id: 'stale',
+        title: 'Unclosed queue from an earlier day',
+        detail: `${plural(s.stale_waiting, 'visit is', 'visits are')} still waiting from a previous day. Close them from the queue page.`,
+        tone: 'urgent',
+        label: 'Action',
+      })
+    }
+    if (s.stat_lab_pending > 0) {
+      list.push({
+        id: 'stat',
+        title: 'STAT lab requests pending',
+        detail: `${plural(s.stat_lab_pending, 'STAT order is', 'STAT orders are')} not yet released.`,
+        tone: 'lab',
+        label: 'Lab',
+      })
+    }
+    if (s.oldest_waiting_since && minutesSince(s.oldest_waiting_since, now.value) >= 60) {
+      list.push({
+        id: 'long-wait',
+        title: 'Long wait in the line',
+        detail: `The longest-waiting patient has been in line ${formatDuration(minutesSince(s.oldest_waiting_since, now.value))}.`,
+        tone: 'pending',
+        label: 'Waiting',
+      })
+    }
+    if (s.ready_for_review > 0) {
+      list.push({
+        id: 'ready',
+        title: 'Results waiting for review',
+        detail: `${plural(s.ready_for_review, 'patient is', 'patients are')} back from the lab and waiting for their physician.`,
+        tone: 'pending',
+        label: 'Review',
+      })
+    }
+    if (!list.length) {
+      list.push({
+        id: 'clear',
+        title: 'All clear',
+        detail: 'No one is stuck, no STAT work is pending, and the line is moving.',
+        tone: 'active',
+        label: 'OK',
+      })
+    }
+    return list
+  })
+
+  let release: (() => void) | null = null
+
+  onMounted(async () => {
+    if (!allowed.value) return
+    release = store.subscribe()
+    try {
+      await store.fetchAll()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not load the dashboard.')
+    }
+  })
+
+  onBeforeUnmount(() => release?.())
+
+  return { allowed, loading, stats, activity, alerts, reload: store.fetchAll }
 }

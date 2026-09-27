@@ -1,5 +1,6 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteLocationRaw, RouteRecordRaw } from 'vue-router'
 import type { PermissionKey } from '@/config/permissions'
+import { useAuthStore } from '@/stores/auth'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -17,6 +18,20 @@ declare module 'vue-router' {
   }
 }
 
+/**
+ * Where "/" sends each role. First match wins, so someone holding several
+ * workspaces lands on the most specific one. Returning true keeps them on
+ * the dashboard — the admin, and accounts with no role yet.
+ */
+function homeFor(auth: ReturnType<typeof useAuthStore>): true | RouteLocationRaw {
+  if (auth.can('dashboard.read')) return true
+  if (auth.can('queue.serve')) return { name: 'consultation' }
+  if (auth.can('lab.process')) return { name: 'laboratory' }
+  if (auth.can('queue.read')) return { name: 'queue' }
+  if (auth.can('patients.read')) return { name: 'patients' }
+  return true
+}
+
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -28,6 +43,45 @@ export const routes: RouteRecordRaw[] = [
         name: 'dashboard',
         component: () => import('@/pages/dashboard/DashboardView.vue'),
         meta: { title: 'Dashboard' },
+        // Role-based portals: each role lands on the screen its day starts
+        // from. Only operations monitoring (the admin) stays on the dashboard.
+        beforeEnter: () => homeFor(useAuthStore()),
+      },
+      {
+        path: 'patients',
+        name: 'patients',
+        component: () => import('@/pages/patients/PatientsView.vue'),
+        meta: { title: 'Patients', permissions: ['patients.read'] },
+      },
+      {
+        path: 'patients/new',
+        name: 'patient-register',
+        component: () => import('@/pages/patients/PatientRegisterView.vue'),
+        meta: { title: 'Register patient', permissions: ['patients.write'] },
+      },
+      {
+        path: 'patients/:id',
+        name: 'patient-detail',
+        component: () => import('@/pages/patients/PatientDetailView.vue'),
+        meta: { title: 'Patient record', permissions: ['patients.read'] },
+      },
+      {
+        path: 'queue',
+        name: 'queue',
+        component: () => import('@/pages/queue/QueueView.vue'),
+        meta: { title: 'OPD queue', permissions: ['queue.read'] },
+      },
+      {
+        path: 'consultation',
+        name: 'consultation',
+        component: () => import('@/pages/consultation/ConsultationView.vue'),
+        meta: { title: 'Consultation', permissions: ['queue.serve'] },
+      },
+      {
+        path: 'laboratory',
+        name: 'laboratory',
+        component: () => import('@/pages/laboratory/LaboratoryView.vue'),
+        meta: { title: 'Laboratory', permissions: ['lab.process'] },
       },
       {
         path: 'settings',
@@ -83,6 +137,19 @@ export const routes: RouteRecordRaw[] = [
         meta: { title: 'Choose a new password' },
       },
     ],
+  },
+  {
+    // The public front page. Signed-out visitors to "/" land here (guards.ts).
+    path: '/welcome',
+    name: 'landing',
+    component: () => import('@/pages/landing/LandingView.vue'),
+  },
+  {
+    // Outside the app shell so the browser prints only the sheet.
+    path: '/print/prescription/:visitId',
+    name: 'print-prescription',
+    component: () => import('@/pages/print/PrescriptionPrintView.vue'),
+    meta: { requiresAuth: true, title: 'Prescription', permissions: ['consultations.read'] },
   },
   {
     path: '/403',
