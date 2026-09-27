@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EmptyState from '@/components/common/EmptyState.vue'
+import StatusPill from '@/components/common/StatusPill.vue'
 import type { ActivityEntry } from '@/composables/useDashboard'
 
 defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
@@ -17,7 +18,7 @@ defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
     v-else-if="!entries.length"
     icon="mdi-history"
     title="Nothing has happened yet"
-    description="Activity shows up here as soon as someone creates or changes a record."
+    description="Patient movements show up here as they happen — registration, calls, lab releases, completions."
   />
 
   <ul v-else class="activity">
@@ -26,7 +27,7 @@ defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
       <div class="activity__body">
         <div class="activity__title">
           {{ entry.title }}
-          <span class="status-pill" :class="`status-pill--${entry.tone}`">{{ entry.status }}</span>
+          <StatusPill :tone="entry.tone" :label="entry.status" />
         </div>
         <div class="activity__detail">{{ entry.detail }}</div>
       </div>
@@ -99,33 +100,6 @@ defineProps<{ entries: ActivityEntry[]; loading?: boolean }>()
 .activity__skeleton--dim {
   opacity: 0.6;
   margin-top: 8px;
-}
-
-.status-pill {
-  border-radius: 999px;
-  padding: 1px 8px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-}
-
-.status-pill--active {
-  background-color: rgb(var(--v-theme-status-active-bg));
-  color: rgb(var(--v-theme-success));
-}
-
-.status-pill--pending {
-  background-color: rgb(var(--v-theme-status-pending-bg));
-  color: rgb(var(--v-theme-warning));
-}
-
-.status-pill--urgent {
-  background-color: rgb(var(--v-theme-status-urgent-bg));
-  color: rgb(var(--v-theme-error));
-}
-
-.status-pill--lab {
-  background-color: rgb(var(--v-theme-status-lab-bg));
-  color: rgb(var(--v-theme-info));
 }
 
 @keyframes activity-pulse {
