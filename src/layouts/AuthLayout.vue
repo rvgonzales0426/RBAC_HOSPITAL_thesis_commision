@@ -1,14 +1,14 @@
 <script setup lang="ts">
-const appName = import.meta.env.VITE_APP_NAME || 'Thesis Template'
+import { APP_NAME as appName } from '@/config/app'
 </script>
 
 <template>
   <v-main class="auth">
     <div class="auth__column">
-      <div class="auth__brand">
+      <router-link :to="{ name: 'landing' }" class="auth__brand" :aria-label="`${appName} home`">
         <div class="auth__mark">{{ appName.charAt(0) }}</div>
         <span class="auth__name">{{ appName }}</span>
-      </div>
+      </router-link>
 
       <div class="surface-panel auth__panel">
         <router-view />
@@ -32,6 +32,8 @@ const appName = import.meta.env.VITE_APP_NAME || 'Thesis Template'
 }
 
 .auth__brand {
+  color: inherit;
+  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
