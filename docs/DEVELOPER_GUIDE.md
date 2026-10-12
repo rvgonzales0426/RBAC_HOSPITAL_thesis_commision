@@ -1,6 +1,6 @@
-# TambalOPD Developer Guide
+# Developer Guide: Outpatient Department Management System with EMR
 
-This guide explains how TambalOPD works, from the database up to the screens. Read it before you change anything. Most of the system's rules live in the database, not in the Vue code, and a change that looks harmless in the UI can be refused by Postgres if you don't know why.
+This guide explains how the system works, from the database up to the screens. Read it before you change anything. Most of the system's rules live in the database, not in the Vue code, and a change that looks harmless in the UI can be refused by Postgres if you don't know why.
 
 **Contents**
 
@@ -23,7 +23,7 @@ This guide explains how TambalOPD works, from the database up to the screens. Re
 
 ## 1. What the system does
 
-TambalOPD is an Outpatient Department (OPD) management system with an integrated electronic medical record (EMR), built for a single public hospital. It takes a patient through one outpatient visit:
+The Outpatient Department Management System with EMR digitizes a hospital's outpatient department (OPD) and keeps an integrated electronic medical record (EMR). It's built for a single public hospital. It takes a patient through one outpatient visit:
 
 ```
 Register → Queue (FIFO) → Consultation → Laboratory → Results back to the doctor → Complete
@@ -57,7 +57,7 @@ There is no custom backend server. The browser talks to Supabase directly. Every
 
 ```bash
 npm install
-cp .env.example .env    # then fill in the three values below
+cp .env.example .env    # then fill in the two values below
 npm run dev             # http://localhost:5173
 ```
 
@@ -66,7 +66,6 @@ npm run dev             # http://localhost:5173
 ```
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon / publishable key>
-VITE_APP_NAME=TambalOPD
 ```
 
 The anon key is public by design. Never put the `service_role` key in `.env` or on Vercel, because anything prefixed `VITE_` is shipped to the browser.
@@ -138,7 +137,7 @@ Page  →  Component  →  Composable  →  Store  →  Supabase (PostgREST / RP
 | You want to change… | Look in |
 |---|---|
 | Status labels and colors, date helpers | `src/config/opd.ts` |
-| App name, tagline | `src/config/app.ts` (or `VITE_APP_NAME`) |
+| App name, tagline | `src/config/app.ts` (a constant, deliberately not an env variable) |
 | Sidebar menu | `src/config/navigation.ts` |
 | Permission keys used in code | `src/config/permissions.ts` |
 | Which role lands where after login | `homeFor()` in `src/router/routes.ts` |
@@ -637,7 +636,7 @@ Every migration should be re-runnable (`create … if not exists`, `drop … if 
 ### Deploying (Vercel)
 
 1. The framework preset is Vite: build `npm run build`, output `dist`.
-2. Set the environment variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_APP_NAME`. Vercel warns that `VITE_` values are public; that's expected for these three. Choose **Config**.
+2. Set the environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Vercel warns that `VITE_` values are public; that's expected for both. Choose **Config**.
 3. **Redeploy** after changing variables. Vite bakes them in at build time.
 4. In Supabase **Authentication → URL configuration**, set the Site URL to the Vercel domain and add `<domain>/reset-password`.
 5. It's a single-page app. For a hard refresh on a deep link such as `/queue` to work, the host must serve `index.html` for every path. On Vercel, add a `vercel.json` with:
