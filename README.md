@@ -14,6 +14,9 @@ RLS, so hiding a button is a courtesy and the database is the real gate.
 
 ---
 
+> **New to the codebase?** Read the [Developer Guide](docs/DEVELOPER_GUIDE.md): how the
+> code is layered, how the database enforces the OPD workflow, and recipes for common changes.
+
 ## Setup
 
 ```bash

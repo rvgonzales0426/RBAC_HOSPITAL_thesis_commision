@@ -42,6 +42,7 @@ import { APP_NAME as appName } from '@/config/app'
 }
 
 .auth__mark {
+  flex: 0 0 auto;
   width: 30px;
   height: 30px;
   border-radius: 7px;
@@ -56,7 +57,9 @@ import { APP_NAME as appName } from '@/config/app'
 .auth__name {
   font-weight: 600;
   font-size: 1rem;
+  line-height: 1.3;
   letter-spacing: -0.015em;
+  max-width: 300px;
 }
 
 .auth__panel {

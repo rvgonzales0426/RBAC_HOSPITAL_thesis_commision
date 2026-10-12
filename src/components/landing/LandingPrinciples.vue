@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { RA_10754, RA_7277, RA_9442, RA_9994, type LawReference } from '@/config/opd'
+
 /** What makes the record trustworthy — each one is enforced in the database, not only the UI. */
-const principles = [
+const principles: { icon: string; title: string; text: string; laws?: LawReference[] }[] = [
   {
     icon: 'mdi-lock-outline',
     title: 'Access by role, enforced at the source',
@@ -14,7 +16,8 @@ const principles = [
   {
     icon: 'mdi-account-group-outline',
     title: 'Fair, visible waiting',
-    text: 'Strict first-in, first-out order with the priority lane Philippine law requires, and a queue board anyone on the floor can read.',
+    text: 'Strict first-in, first-out order, with a priority lane for senior citizens and persons with disability as Philippine law requires, and a queue board anyone on the floor can read.',
+    laws: [RA_9994, RA_7277, RA_9442, RA_10754],
   },
   {
     icon: 'mdi-broadcast',
@@ -39,6 +42,14 @@ const principles = [
           <v-icon :icon="item.icon" size="22" class="principle__icon" />
           <h3 class="principle__title">{{ item.title }}</h3>
           <p class="principle__text">{{ item.text }}</p>
+          <ul v-if="item.laws" class="principle__laws">
+            <li v-for="law in item.laws" :key="law.number">
+              <a :href="law.url" target="_blank" rel="noopener noreferrer" class="link-inline">
+                {{ law.number }}
+              </a>
+              <span>{{ law.title }}</span>
+            </li>
+          </ul>
         </article>
       </div>
     </div>
@@ -81,6 +92,20 @@ const principles = [
 .principle__title {
   margin-top: 10px;
   font-size: 1rem;
+}
+
+.principle__laws {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+}
+
+.principle__laws span {
+  margin-left: 6px;
+  color: rgb(var(--v-theme-text-secondary));
 }
 
 .principle__text {

@@ -92,9 +92,11 @@ const sections = computed(() =>
 }
 
 .sidebar__name {
+  /* The full system name wraps to three short lines inside the 56px bar. */
   font-weight: 600;
-  letter-spacing: -0.015em;
-  white-space: nowrap;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   color: rgb(var(--v-theme-on-navy));
 }
 

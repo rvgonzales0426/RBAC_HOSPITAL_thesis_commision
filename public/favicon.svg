@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="8" fill="#0D9488" />
-  <!-- T for TambalOPD -->
-  <path d="M8.5 8.5h15v3.6h-5.7V24h-3.6V12.1H8.5Z" fill="#FFFFFF" />
+  <!-- O for Outpatient Department Management System -->
+  <circle cx="16" cy="16" r="7" fill="none" stroke="#FFFFFF" stroke-width="3.6" />
 </svg>

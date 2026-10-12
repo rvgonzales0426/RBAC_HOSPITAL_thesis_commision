@@ -101,8 +101,86 @@ export const CIVIL_STATUS_OPTIONS = [
 
 export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
-/** The priority lanes Philippine law requires (RA 9994, RA 10754, RA 7277). */
-export const PRIORITY_REASONS = ['Senior citizen', 'Person with disability', 'Pregnant']
+/* ---------------------------------------------------------------------------
+ * Priority lane — who goes ahead of the regular line, and on what basis
+ *
+ * Verified against the full texts on LawPhil (Oct 2026). Seniors and PWDs
+ * have a national express-lane right; pregnant patients do not — no Republic
+ * Act sets one (RA 9710, the Magna Carta of Women, is silent on lanes), so
+ * that lane is hospital policy and is labelled as such. Do not add a law
+ * here without reading its text.
+ * ------------------------------------------------------------------------- */
+
+export interface LawReference {
+  /** "RA 9994" */
+  number: string
+  title: string
+  /** Where in the act the express-lane provision sits. */
+  provision: string
+  url: string
+}
+
+export interface PriorityLaneBasis {
+  /** Stored in visits.priority_reason — keep existing values unchanged. */
+  reason: string
+  who: string
+  laws: LawReference[]
+  /** Shown instead of a law when the lane rests on hospital policy. */
+  policyNote?: string
+}
+
+export const RA_9994: LawReference = {
+  number: 'RA 9994',
+  title: 'Expanded Senior Citizens Act of 2010',
+  provision: 'Sec. 4 — express lanes in all commercial and government establishments',
+  url: 'https://lawphil.net/statutes/repacts/ra2010/ra_9994_2010.html',
+}
+
+export const RA_7277: LawReference = {
+  number: 'RA 7277',
+  title: 'Magna Carta for Disabled Persons',
+  provision: 'Sec. 32 — privileges of persons with disability, as amended',
+  url: 'https://lawphil.net/statutes/repacts/ra1992/ra_7277_1992.html',
+}
+
+export const RA_9442: LawReference = {
+  number: 'RA 9442',
+  title: 'An Act Amending RA 7277, the Magna Carta for Disabled Persons (2007)',
+  provision: 'Amends Sec. 32 of RA 7277 — adds express lanes for persons with disability',
+  url: 'https://lawphil.net/statutes/repacts/ra2007/ra_9442_2007.html',
+}
+
+export const RA_10754: LawReference = {
+  number: 'RA 10754',
+  title: 'An Act Expanding the Benefits and Privileges of Persons with Disability (2016)',
+  provision: 'Amends Sec. 32 of RA 7277 — keeps express lanes, or priority where there are none',
+  url: 'https://lawphil.net/statutes/repacts/ra2016/ra_10754_2016.html',
+}
+
+export const PRIORITY_LANE_BASIS: PriorityLaneBasis[] = [
+  {
+    reason: 'Senior citizen',
+    who: 'Senior citizens, 60 years old and above',
+    laws: [RA_9994],
+  },
+  {
+    reason: 'Person with disability',
+    who: 'Persons with disability',
+    laws: [RA_7277, RA_9442, RA_10754],
+  },
+  {
+    reason: 'Pregnant',
+    who: 'Pregnant patients',
+    laws: [],
+    policyNote: 'Hospital policy. No national Republic Act sets a priority lane for pregnant women.',
+  },
+]
+
+export const PRIORITY_REASONS = PRIORITY_LANE_BASIS.map((basis) => basis.reason)
+
+export function priorityBasisFor(reason: string | null | undefined) {
+  return PRIORITY_LANE_BASIS.find((basis) => basis.reason === reason) ?? null
+}
 
 /* ---------------------------------------------------------------------------
  * Formatting

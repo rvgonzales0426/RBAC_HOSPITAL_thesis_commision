@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import { APP_KIND, APP_NAME, APP_NAME_MEANING } from '@/config/app'
+import { APP_NAME, APP_SCOPE } from '@/config/app'
 
 const auth = useAuthStore()
 const year = new Date().getFullYear()
@@ -24,11 +24,10 @@ const year = new Date().getFullYear()
     <div class="landing-container footer__inner">
       <div>
         <div class="footer__name">{{ APP_NAME }}</div>
-        <div class="footer__meta">{{ APP_KIND }}</div>
+        <div class="footer__meta">{{ APP_SCOPE }}</div>
       </div>
       <div class="footer__meta footer__right">
-        <div>{{ APP_NAME_MEANING }}</div>
-        <div>© {{ year }} {{ APP_NAME }}</div>
+        <div>© {{ year }}</div>
       </div>
     </div>
   </footer>

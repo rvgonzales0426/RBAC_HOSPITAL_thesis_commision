@@ -2,7 +2,7 @@
 import LandingQueuePreview from './LandingQueuePreview.vue'
 import corridorPhoto from '@/assets/landing/hospital-corridor.jpg'
 import { useAuthStore } from '@/stores/auth'
-import { APP_KIND, APP_NAME, APP_TAGLINE } from '@/config/app'
+import { APP_SCOPE, APP_TAGLINE } from '@/config/app'
 
 const auth = useAuthStore()
 const photo = `url(${corridorPhoto})`
@@ -17,12 +17,12 @@ const photo = `url(${corridorPhoto})`
 
     <div class="landing-container hero__inner">
       <div class="hero__copy">
-        <p class="hero__kind">{{ APP_KIND }}</p>
+        <p class="hero__kind">{{ APP_SCOPE }}</p>
         <h1 class="hero__title">{{ APP_TAGLINE }}</h1>
         <p class="hero__lead">
-          {{ APP_NAME }} carries every outpatient visit from the registration desk to the doctor,
-          the laboratory and back — replacing paper logbooks, hand-carried lab slips and
-          unmanaged waiting lines with one shared record.
+          Every outpatient visit, carried from the registration desk to the doctor, the
+          laboratory and back — replacing paper logbooks, hand-carried lab slips and unmanaged
+          waiting lines with one shared record.
         </p>
 
         <div class="hero__actions">
@@ -92,7 +92,9 @@ const photo = `url(${corridorPhoto})`
   display: inline-block;
   margin-bottom: 18px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 12px;
+  /* On a phone the list wraps; balance it so "EMR" never sits alone. */
+  text-wrap: balance;
   font-size: 0.8125rem;
   font-weight: 500;
   color: rgb(var(--v-theme-primary));

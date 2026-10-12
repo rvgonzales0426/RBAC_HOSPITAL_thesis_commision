@@ -76,7 +76,6 @@ const printSheet = () => window.print()
     <article v-else-if="visit && patient" class="rx-sheet">
       <header class="rx-sheet__head">
         <div class="rx-sheet__facility">{{ appName }}</div>
-        <div class="rx-sheet__dept">Outpatient Department</div>
       </header>
 
       <section class="rx-sheet__patient">

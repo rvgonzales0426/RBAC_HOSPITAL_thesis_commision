@@ -53,6 +53,8 @@ const sections = [
 }
 
 .nav__brand {
+  flex: 0 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -61,6 +63,7 @@ const sections = [
 }
 
 .nav__mark {
+  flex: 0 0 auto;
   width: 28px;
   height: 28px;
   border-radius: 7px;
@@ -74,7 +77,16 @@ const sections = [
 
 .nav__name {
   font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.25;
   letter-spacing: -0.015em;
+  max-width: 300px;
+}
+
+@media (max-width: 600px) {
+  .nav__name {
+    font-size: 0.8125rem;
+  }
 }
 
 .nav__links {
